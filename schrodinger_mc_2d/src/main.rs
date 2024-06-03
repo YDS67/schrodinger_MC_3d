@@ -10,13 +10,13 @@ const H2M0: f64 = 0.0762;
 const ME: f64 = 0.067;
 const A1: f64 = 20.0;
 const A2: f64 = 4.0;
-const L: f64 = 100.0;
+const L: f64 = 60.0;
 const X1: f64 = L/2.0;
 const X2: f64 = L/2.0;
 const Y1: f64 = L/2.0;
 const Y2: f64 = L/2.0;
 const U0: f64 = 0.25;
-const DX: f64 = 0.1;
+const DX: f64 = 0.5;
 const DX2: f64 = DX*DX;
 const NX: usize = (L/DX) as usize;
 const D: f64 = H2M0/ME/2.0;
@@ -25,7 +25,7 @@ const FINAL_TIME: f64 = 100.0; // units 1/eV
 const N_PARTICLES: usize = 5000000;
 const N_PARTICLES_F: f64 = N_PARTICLES as f64;
 const N_TIME_STEPS: usize = (FINAL_TIME/DTAU) as usize;
-const N_VALUES_CHECK: usize = 200;
+const N_VALUES_CHECK: usize = 100;
 const CHECK_INTERVAL: usize = N_TIME_STEPS/N_VALUES_CHECK;
 
 fn potential(x: f64, y: f64) -> f64 {
@@ -142,7 +142,7 @@ fn main() {
     }
 
 
-    let flnm = format!("schr_FD_MC_2D_energy-{}-{}-{}-{}", N_PARTICLES, N_TIME_STEPS, N_VALUES_CHECK, NX);
+    let flnm = format!("schr_MC_2D_energy-{}-{}-{}-{}", N_PARTICLES, N_TIME_STEPS, N_VALUES_CHECK, NX);
     let title = format!("{} particles, {} time steps, {} values saved, {} grid points.", N_PARTICLES, N_TIME_STEPS, N_VALUES_CHECK, NX);
     let plot_par = plot::PlotPar::new(
         "Time, 1/eV", 
@@ -159,7 +159,7 @@ fn main() {
         &plot_par
     );
 
-    let flnm = format!("schr_FD_MC_2D_density1D-{}-{}-{}-{}", N_PARTICLES, N_TIME_STEPS, N_VALUES_CHECK, NX);
+    let flnm = format!("schr_MC_2D_density1D-{}-{}-{}-{}", N_PARTICLES, N_TIME_STEPS, N_VALUES_CHECK, NX);
     let title = format!("{} particles, {} time steps, {} values saved, {} grid points.", N_PARTICLES, N_TIME_STEPS, N_VALUES_CHECK, NX);
     let plot_par = plot::PlotPar::new(
         "x, nm", 
@@ -179,16 +179,16 @@ fn main() {
         &vec![
             xn, un1d, particle_distribution_1d,
         ], "results", 
-        &format!("schr_FD_MC_1D_density-{}-{}-{}-{}.dat", N_PARTICLES, N_TIME_STEPS, N_VALUES_CHECK, NX),
+        &format!("schr_MC_1D_density-{}-{}-{}-{}.dat", N_PARTICLES, N_TIME_STEPS, N_VALUES_CHECK, NX),
     );
     save_columns_to_file(
         &vec![
             tau_values, energy_values, vec![energy_correct; n_values],
         ], "results", 
-        &format!("schr_FD_MC_1D_energy-{}-{}-{}-{}.dat", N_PARTICLES, N_TIME_STEPS, N_VALUES_CHECK, NX),
+        &format!("schr_MC_1D_energy-{}-{}-{}-{}.dat", N_PARTICLES, N_TIME_STEPS, N_VALUES_CHECK, NX),
     );
 
     draw::plot_2d(&un2d, NX, NX, 2000, 2000, "potential_plot_2d.png");
 
-    draw::plot_2d(&particle_distribution, NX, NX, 2000, 2000, &format!("schr_FD_MC_2D_density-{}-{}-{}-{}.png", N_PARTICLES, N_TIME_STEPS, N_VALUES_CHECK, NX));
+    draw::plot_2d(&particle_distribution, NX, NX, 2000, 2000, &format!("schr_MC_2D_density-{}-{}-{}-{}.png", N_PARTICLES, N_TIME_STEPS, N_VALUES_CHECK, NX));
 }
