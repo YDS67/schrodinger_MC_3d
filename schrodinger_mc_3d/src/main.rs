@@ -26,7 +26,7 @@ const DX2: f64 = DX*DX;
 const NX: usize = (LX/DX) as usize;
 const NY: usize = NX;
 const NZ: usize = (LZ/DX) as usize;
-const NZ0: usize = (2.0*QW_HEIGHT/DX) as usize;
+//const NZ0: usize = (2.0*QW_HEIGHT/DX) as usize;
 const D: f64 = H2M0/ME/2.0;
 const DTAU: f64 = DX2/4.0/D; // units 1/eV
 const FINAL_TIME: f64 = 150.0; // units 1/eV
@@ -35,6 +35,8 @@ const N_PARTICLES_F: f64 = N_PARTICLES as f64;
 const N_TIME_STEPS: usize = (FINAL_TIME/DTAU) as usize;
 const N_VALUES_CHECK: usize = 100;
 const CHECK_INTERVAL: usize = N_TIME_STEPS/N_VALUES_CHECK;
+const N_ANGLES_ROTATION_PLOT: usize = 20;
+const D_ANGLE: f64 = 2.0*3.14159/(N_ANGLES_ROTATION_PLOT as f64);
 
 fn quantum_ring_shape(x: f64, y: f64) -> f64 {
     let s1 = (x-X1).powi(2)/A1.powi(2)+(y-Y1).powi(2)/B1.powi(2);
@@ -90,6 +92,9 @@ fn main() {
     let xn: Vec<f64> = (0..NX).map(|n| n as f64 * DX).collect();
     let yn: Vec<f64> = (0..NY).map(|n| n as f64 * DX).collect();
     let zn: Vec<f64> = (0..NZ).map(|n| n as f64 * DX).collect();
+    let phin: Vec<f64> = (0..N_ANGLES_ROTATION_PLOT).map(|n| n as f64 * D_ANGLE).collect();
+    let cosphin: Vec<f64> = phin.clone().into_iter().map(|x| x.cos()).collect();
+    let sinphin: Vec<f64> = phin.clone().into_iter().map(|x| x.sin()).collect();
     let un1d: Vec<f64> = xn.clone().into_iter().map(|x| potential(x, Y1, QW_HEIGHT+0.5*QR_HEIGHT, amplitude)).collect();
 
     let mut zn2d: Vec<f64> = vec![0.0; NX*NY];
@@ -98,15 +103,15 @@ fn main() {
             zn2d[index_xy(jx,jy)] = quantum_ring_z(xn[jx], yn[jy], amplitude) - 2.0*QW_HEIGHT
         }
     }
-    draw::plot_2d(&zn2d, NX, NY, 2000, 2000, "QR_shape_xy.png");
+    draw::plot_2d(&zn2d, NX, NY, 2000, 2000, "QR_shape_xy.png", "Turbo");
 
     let mut un2d: Vec<f64> = vec![0.0; NX*NZ];
     for jx in 0..NX {
         for jz in 0..NZ {
-            un2d[index_xz(jx,jz)] = U0 - potential(xn[jx], Y1, LZ-zn[jz], amplitude)
+            un2d[index_xz(jx,jz)] = potential(xn[jx], Y1, LZ-zn[jz], amplitude)
         }
     }
-    draw::plot_2d(&un2d, NX, NZ, 2000, (2000*NZ)/NX, "Potential_shape_xz.png");
+    draw::plot_2d(&un2d, NX, NZ, 2000, (2000*NZ)/NX, "Potential_shape_xz.png", "BnW");
 
     let mut un3d: Vec<f64> = vec![0.0; NX*NY*NZ];
     for jx in 0..NX {
@@ -182,11 +187,13 @@ fn main() {
         }
     }
 
+    println!("Main loop done");
+
     let energy_correct = mean_last_half(&energy_values);
     let n_values = energy_values.len();
 
     let flnm = format!("schr_MC_3D_energy-{}-{}-{}-{}", N_PARTICLES, N_TIME_STEPS, N_VALUES_CHECK, NX);
-    let title = format!("{} particles, {} time steps, {}*{}*{} grid points.", N_PARTICLES, N_TIME_STEPS, NX, NY, NZ);
+    let title = format!("{} particles, {} time steps, {}x{}x{} grid points.", N_PARTICLES, N_TIME_STEPS, NX, NY, NZ);
     let plot_par = plot::PlotPar::new(
         "Time, 1/eV", 
         "Energy, eV", 
@@ -209,33 +216,63 @@ fn main() {
         &format!("schr_MC_1D_energy-{}-{}-{}-{}.dat", N_PARTICLES, N_TIME_STEPS, N_VALUES_CHECK, NX),
     );
 
+    // Full denstiy distribution
+
     for jp in 0..N_PARTICLES {
         if particle_array_x[jp] < NX && particle_array_y[jp] < NY && particle_array_z[jp] < NZ {
             particle_distances[jp] = ((particle_array_x[jp] as f64).powi(2) + (particle_array_y[jp] as f64).powi(2) + (particle_array_z[jp] as f64).powi(2)).sqrt().floor() as usize;
             particle_distribution_xyz[index_3d(particle_array_x[jp],particle_array_y[jp],particle_array_z[jp])] += 1.0
         }
     }
+
+    // 1D distribution by summation for all z and rotation around z
+
     let mut sum = 0.0;
     let mut square;
-    for jx in 0..NX {
-        square = particle_distribution_xyz[index_3d(jx, NX/2, NZ0)]*particle_distribution_xyz[index_3d(jx, NX/2, NZ0)];
-        particle_distribution_x[jx] = square;
-        sum += square;
-        for jy in 0..NY {
-            square = particle_distribution_xyz[index_3d(jx, jy, NZ0)]*particle_distribution_xyz[index_3d(jx, jy, NZ0)];
-            particle_distribution_xy[index_xy(jx, jy)] = square;
-        }
-        for jz in 0..NZ {
-            square = particle_distribution_xyz[index_3d(jx, NY/2, jz)]*particle_distribution_xyz[index_3d(jx, NY/2, jz)];
-            particle_distribution_xz[index_xz(jx, NZ-jz-1)] = square;
+    for jr in 0..NX {
+        let r = jr as f64 * DX - LX/2.0;
+        for jphi in 0..N_ANGLES_ROTATION_PLOT {
+            let jx = ((r*cosphin[jphi] + LX/2.0)/DX) as usize;
+            let jy = ((r*sinphin[jphi] + LX/2.0)/DX) as usize;
+            if jx < NX && jy < NY {
+                for jz in 0..NZ {
+                    square = particle_distribution_xyz[index_3d(jx, jy, jz)]*particle_distribution_xyz[index_3d(jx, jy, jz)];
+                    particle_distribution_x[jr] += square;
+                    sum += square;
+                }
+            }
         }
     }
     for jx in 0..NX {
         particle_distribution_x[jx] = particle_distribution_x[jx]/sum/DX + energy_correct
     }
 
+    // 2D distribution xy by summation for all z
+
+    for jx in 0..NX {
+        for jy in 0..NY {
+            for jz in 0..NZ {
+                square = particle_distribution_xyz[index_3d(jx, jy, jz)]*particle_distribution_xyz[index_3d(jx, jy, jz)];
+                particle_distribution_xy[index_xy(jx, jy)] += square;
+            }
+        }
+        for jz in 0..NZ {
+            for jr in 0..NX {
+                let r = jr as f64 * DX - LX/2.0;
+                for jphi in 0..N_ANGLES_ROTATION_PLOT {
+                    let jx = ((r*cosphin[jphi] + LX/2.0)/DX) as usize;
+                    let jy = ((r*sinphin[jphi] + LX/2.0)/DX) as usize;
+                    if jx < NX && jy < NY {
+                        square = particle_distribution_xyz[index_3d(jx, jy, jz)]*particle_distribution_xyz[index_3d(jx, jy, jz)];
+                        particle_distribution_xz[index_xz(jr, NZ-jz-1)] += square;
+                    }
+                }
+            }
+        }
+    }
+
     let flnm = format!("schr_MC_3D_density1D-{}-{}-{}-{}", N_PARTICLES, N_TIME_STEPS, N_VALUES_CHECK, NX);
-    let title = format!("{} particles, {} time steps, {}*{}*{} grid points.", N_PARTICLES, N_TIME_STEPS, NX, NY, NZ);
+    let title = format!("{} particles, {} time steps, {}x{}x{} grid points.", N_PARTICLES, N_TIME_STEPS, NX, NY, NZ);
     let plot_par = plot::PlotPar::new(
         "x, nm", 
         "Energy, eV", 
@@ -257,6 +294,6 @@ fn main() {
         &format!("schr_MC_1D_density-{}-{}-{}-{}.dat", N_PARTICLES, N_TIME_STEPS, N_VALUES_CHECK, NX),
     );
 
-    draw::plot_2d(&particle_distribution_xy, NX, NY, 2000, 2000, &format!("schr_MC_3D_density_xy-{}-{}-{}-{}.png", N_PARTICLES, N_TIME_STEPS, N_VALUES_CHECK, NX));
-    draw::plot_2d(&particle_distribution_xz, NX, NZ, 2000, (2000 * NZ) / NX, &format!("schr_MC_3D_density_xz-{}-{}-{}-{}.png", N_PARTICLES, N_TIME_STEPS, N_VALUES_CHECK, NX));
+    draw::plot_2d(&particle_distribution_xy, NX, NY, 2000, 2000, &format!("schr_MC_3D_density_xy-{}-{}-{}-{}.png", N_PARTICLES, N_TIME_STEPS, N_VALUES_CHECK, NX), "Turbo");
+    draw::plot_2d(&particle_distribution_xz, NX, NZ, 2000, (2000 * NZ) / NX, &format!("schr_MC_3D_density_xz-{}-{}-{}-{}.png", N_PARTICLES, N_TIME_STEPS, N_VALUES_CHECK, NX), "Turbo");
 }

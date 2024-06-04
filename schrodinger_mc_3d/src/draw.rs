@@ -1,12 +1,12 @@
 use crate::file;
 use image::{DynamicImage, ImageBuffer, RgbImage};
 
-pub fn plot_2d(map: &Vec<f64>, nx: usize, ny: usize, width: usize, height: usize, flnm: &str) {
+pub fn plot_2d(map: &Vec<f64>, nx: usize, ny: usize, width: usize, height: usize, flnm: &str, pal: &str) {
     let mut img: RgbImage = ImageBuffer::new(nx as u32, ny as u32);
     let mut idx: usize;
     let maxmin = max_min(&map);
 
-    let palette: Vec<Vec<u8>> = file::read_palette("palettes", "Turbo.dat");
+    let palette: Vec<Vec<u8>> = file::read_palette("palettes", &format!("{}.dat", pal));
 
     for jx in 0..nx {
         for jy in 0..ny {
