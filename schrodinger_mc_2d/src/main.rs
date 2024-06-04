@@ -9,7 +9,7 @@ mod draw;
 const H2M0: f64 = 0.0762;
 const ME: f64 = 0.067;
 const A1: f64 = 20.0;
-const A2: f64 = 4.0;
+const A2: f64 = 8.0;
 const L: f64 = 80.0;
 const X1: f64 = L/2.0;
 const X2: f64 = L/2.0;
@@ -55,7 +55,7 @@ fn mean_last_half(v: &Vec<f64>) -> f64 {
 fn main() {
     let radius = 2.0*A1*A2*((A1.ln()-A2.ln())/(A1*A1-A2*A2)).sqrt();
     println!("QR radius = {} nm", radius);
-    let amplitude = potential_shape(radius, 0.0);
+    let amplitude = potential_shape(radius+X1, Y1);
     println!("QR amplitude = {} U0", amplitude);
     let mut rng = rand::thread_rng();
     let x_dist = Uniform::from(0..NX);
