@@ -10,7 +10,7 @@ const H2M0: f64 = 0.0762;
 const ME: f64 = 0.067;
 const A1: f64 = 20.0;
 const A2: f64 = 4.0;
-const L: f64 = 60.0;
+const L: f64 = 80.0;
 const X1: f64 = L/2.0;
 const X2: f64 = L/2.0;
 const Y1: f64 = L/2.0;
@@ -22,14 +22,20 @@ const NX: usize = (L/DX) as usize;
 const D: f64 = H2M0/ME/2.0;
 const DTAU: f64 = DX2/4.0/D; // units 1/eV
 const FINAL_TIME: f64 = 100.0; // units 1/eV
-const N_PARTICLES: usize = 5000000;
+const N_PARTICLES: usize = 50000;
 const N_PARTICLES_F: f64 = N_PARTICLES as f64;
 const N_TIME_STEPS: usize = (FINAL_TIME/DTAU) as usize;
 const N_VALUES_CHECK: usize = 100;
 const CHECK_INTERVAL: usize = N_TIME_STEPS/N_VALUES_CHECK;
 
-fn potential(x: f64, y: f64) -> f64 {
-    U0*(1.0 - (-(x-X1).powi(2)/A1.powi(2)-(y-Y1).powi(2)/A1.powi(2)).exp() + (-(x-X2).powi(2)/A2.powi(2)-(y-Y2).powi(2)/A2.powi(2)).exp())
+fn potential_shape(x: f64, y: f64) -> f64 {
+    let s1 = (x-X1).powi(2)/A1.powi(2)+(y-Y1).powi(2)/A1.powi(2);
+    let s2 = (x-X2).powi(2)/A2.powi(2)+(y-Y2).powi(2)/A2.powi(2);
+    (1.0 + s1)*(-s1).exp() - (1.0 + s2)*(-s2).exp()
+}
+
+fn potential(x: f64, y: f64, a: f64) -> f64 {
+    U0*(1.0-potential_shape(x, y)/a)
 }
 
 fn index(jx: usize, jy: usize) -> usize {
@@ -47,17 +53,21 @@ fn mean_last_half(v: &Vec<f64>) -> f64 {
 }
 
 fn main() {
+    let radius = 2.0*A1*A2*((A1.ln()-A2.ln())/(A1*A1-A2*A2)).sqrt();
+    println!("QR radius = {} nm", radius);
+    let amplitude = potential_shape(radius, 0.0);
+    println!("QR amplitude = {} U0", amplitude);
     let mut rng = rand::thread_rng();
     let x_dist = Uniform::from(0..NX);
     let p_dist = Uniform::from(0..N_PARTICLES);
     let d_dist = Uniform::from(0..4);
     let xn: Vec<f64> = (0..NX).map(|n| n as f64 * DX).collect();
     let yn: Vec<f64> = (0..NX).map(|n| n as f64 * DX).collect();
-    let un1d: Vec<f64> = xn.clone().into_iter().map(|x| potential(x, Y1)).collect();
+    let un1d: Vec<f64> = xn.clone().into_iter().map(|x| potential(x, Y1, amplitude)).collect();
     let mut un2d: Vec<f64> = vec![0.0; NX*NX];
     for jx in 0..NX {
         for jy in 0..NX {
-            un2d[index(jx,jy)] = potential(xn[jx], yn[jy])
+            un2d[index(jx,jy)] = potential(xn[jx], yn[jy], amplitude)
         }
     }
     let p_evap: Vec<f64> = un2d.clone().into_iter().map(|u| u*DTAU).collect();
