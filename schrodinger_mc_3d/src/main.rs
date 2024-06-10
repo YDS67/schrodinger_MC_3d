@@ -197,18 +197,17 @@ fn main() {
 
     let flnm = format!("schr_MC_3D_energy-{}-{}-{}-{}", N_PARTICLES, N_TIME_STEPS, N_VALUES_CHECK, NX);
     let title = format!("{} particles, {} time steps, {}x{}x{} grid points.", N_PARTICLES, N_TIME_STEPS, NX, NY, NZ);
-    let plot_par = plot::PlotPar::new(
+    let mut plot_par = plot::PlotPar::new(
         "Time, 1/eV", 
         "Energy, eV", 
         &title, 
         &flnm,
         vec![format!("Energy average"), format!("Energy vs time")],
     );
-    plot::line_and_scatter_plot(
-        &tau_values, 
-        &vec![energy_correct; n_values], 
-        &tau_values, 
-        &energy_values, 
+    plot_par.line_or_points = vec![plot::LineOrPoints::Line, plot::LineOrPoints::Points];
+    plot::line_plot(
+        &vec![tau_values.clone(), tau_values.clone()],
+        &vec![vec![energy_correct; n_values], energy_values.clone()], 
         &plot_par
     );
 
@@ -276,18 +275,17 @@ fn main() {
 
     let flnm = format!("schr_MC_3D_density1D-{}-{}-{}-{}", N_PARTICLES, N_TIME_STEPS, N_VALUES_CHECK, NX);
     let title = format!("{} particles, {} time steps, {}x{}x{} grid points.", N_PARTICLES, N_TIME_STEPS, NX, NY, NZ);
-    let plot_par = plot::PlotPar::new(
+    let mut plot_par = plot::PlotPar::new(
         "x, nm", 
         "Energy, eV", 
         &title, 
         &flnm,
         vec![format!("U(x)"), format!("Probability density")],
     );
-    plot::line_and_scatter_plot(
-        &xn, 
-        &un1d, 
-        &xn, 
-        &particle_distribution_x, 
+    plot_par.line_or_points = vec![plot::LineOrPoints::Line, plot::LineOrPoints::Points];
+    plot::line_plot(
+        &vec![xn.clone(); 2],
+        &vec![un1d.clone(), particle_distribution_x.clone()], 
         &plot_par
     );
     save_columns_to_file(

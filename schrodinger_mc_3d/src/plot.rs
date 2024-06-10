@@ -3,12 +3,29 @@ use plotly::common::{Anchor, Font, Line, Marker, MarkerSymbol, Mode, Title};
 use plotly::layout::{Axis, Legend, Shape, ShapeLine, ShapeType, ItemSizing, Margin};
 use plotly::{ImageFormat, Layout, Plot, Scatter};
 
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum LegendAl{
+    BottomRight,
+    TopRight,
+    BottomLeft,
+    TopLeft,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum LineOrPoints{
+    Line,
+    Points,
+    LineAndPoints,
+}
+
 pub struct PlotPar{
     pub xlab: String,
     pub ylab: String,
     pub title: String,
     pub flnm: String,
-    pub legends: Vec<String>
+    pub legends: Vec<String>,
+    pub legend_al: LegendAl,
+    pub line_or_points: Vec<LineOrPoints>,
 }
 
 impl PlotPar{
@@ -19,19 +36,32 @@ impl PlotPar{
             title: format!("{}", title),
             flnm: format!("{}", flnm),
             legends,
+            legend_al: LegendAl::TopRight,
+            line_or_points: vec![LineOrPoints::Line; 20],
         }
     }
 }
 
-pub fn line_and_scatter_plot(x1: &Vec<f64>, y1: &Vec<f64>, x2: &Vec<f64>, y2: &Vec<f64>, plot_par: &PlotPar) {
+pub fn line_plot(x: &Vec<Vec<f64>>, y: &Vec<Vec<f64>>, plot_par: &PlotPar) {
+    let lines_number = x.len();
     let bgcol = Rgb::new(255, 255, 255);
-    let linecol1 = NamedColor::DarkBlue;
-    let linecol2 = NamedColor::DarkRed;
+    let cols = vec![
+        NamedColor::MidnightBlue, 
+        NamedColor::Maroon,
+        NamedColor::Teal,
+        NamedColor::RebeccaPurple,
+        NamedColor::Brown,
+        NamedColor::YellowGreen,
+        NamedColor::DarkGreen,
+        NamedColor::Indigo,
+        NamedColor::OliveDrab,
+    ];
+    let linecol: Vec<NamedColor> = (0..lines_number).map(|l| cols[l]).collect();
     let forecol = Rgb::new(0, 0, 0);
-    let gridcol = Rgb::new(180, 180, 180);
+    let gridcol = Rgb::new(220, 220, 220);
     let transp = NamedColor::Transparent;
     let thick: usize = 3;
-    let medium: usize = 3;
+    let medium: usize = 4;
     let _thin: usize = 2;
     let msize: usize = 10;
     let fsz_title: usize = 35;
@@ -39,29 +69,71 @@ pub fn line_and_scatter_plot(x1: &Vec<f64>, y1: &Vec<f64>, x2: &Vec<f64>, y2: &V
     let fsz_ticks: usize = 30;
     let fsz_axes: usize = 35;
 
-    let trace1 = Scatter::new(x1.clone(), y1.clone())
-        .name(&plot_par.legends[0])
-        .mode(Mode::Lines)
-        .line(Line::new().color(linecol1).width(medium as f64)
-        //.marker(Marker::new().size(msize).symbol(MarkerSymbol::Circle),
-    );
-        
-    let trace2 = Scatter::new(x2.clone(), y2.clone())
-        .name(&plot_par.legends[1])
-        .mode(Mode::Markers)
-        //.line(Line::new().color(linecol2).width(medium as f64))
-        .marker(Marker::new().size(msize).color(linecol2).symbol(MarkerSymbol::Circle)
-    );
+    let mut traces = Vec::new();
+
+    for l in 0..lines_number {
+        match plot_par.line_or_points[l] {
+            LineOrPoints::Line => {
+                traces.push(
+                    Scatter::new(x[l].clone(), y[l].clone())
+                        .name(&plot_par.legends[l])
+                        .mode(Mode::Lines)
+                        .line(Line::new().color(linecol[l]).width(medium as f64)),
+                )
+            },
+            LineOrPoints::Points => {
+                traces.push(
+                    Scatter::new(x[l].clone(), y[l].clone())
+                        .name(&plot_par.legends[l])
+                        .mode(Mode::Markers)
+                        .marker(Marker::new().size(msize).color(linecol[l]).symbol(MarkerSymbol::Circle)),
+                )
+            },
+            LineOrPoints::LineAndPoints => {
+                traces.push(
+                    Scatter::new(x[l].clone(), y[l].clone())
+                        .name(&plot_par.legends[l])
+                        .mode(Mode::LinesMarkers)
+                        .line(Line::new().color(linecol[l]).width(medium as f64))
+                        .marker(Marker::new().size(msize).symbol(MarkerSymbol::Circle)),
+                )
+            },
+        }
+    }
 
     let title = Title::new(&plot_par.title)
         .font(Font::new().size(fsz_title).family("Serif").color(forecol));
 
-    let legend = Legend::new()
+    let legend_bottom_right = Legend::new()
         .x(0.99)
         .x_anchor(Anchor::Right)
-        .y(1.0 - 0.0133)
-        .y_anchor(Anchor::Top)
-        .font(Font::new().size(fsz_legend).color(forecol).family("Serif"))
+        .y(0.01)
+        .y_anchor(Anchor::Bottom);
+
+    let legend_top_right = Legend::new()
+        .x(0.99)
+        .x_anchor(Anchor::Right)
+        .y(0.99)
+        .y_anchor(Anchor::Top);
+
+    let legend_bottom_left = Legend::new()
+        .x(0.01)
+        .x_anchor(Anchor::Left)
+        .y(0.01)
+        .y_anchor(Anchor::Bottom);
+
+    let legend_top_left = Legend::new()
+        .x(0.01)
+        .x_anchor(Anchor::Left)
+        .y(0.99)
+        .y_anchor(Anchor::Top);
+
+    let legend = match plot_par.legend_al {
+        LegendAl::BottomLeft => legend_bottom_left,
+        LegendAl::BottomRight => legend_bottom_right,
+        LegendAl::TopLeft => legend_top_left,
+        LegendAl::TopRight => legend_top_right,
+    }.font(Font::new().size(fsz_legend).color(forecol).family("Serif"))
         .border_width(medium)
         .border_color(forecol)
         .background_color(bgcol)
@@ -128,11 +200,13 @@ pub fn line_and_scatter_plot(x1: &Vec<f64>, y1: &Vec<f64>, x2: &Vec<f64>, y2: &V
     layout.add_shape(line_right);
 
     let mut plot = Plot::new();
-    plot.add_trace(trace1);
-    plot.add_trace(trace2);
+
+    for l in 0..lines_number {
+        let trace = traces[l].clone();
+        plot.add_trace(trace);
+    }
     plot.set_layout(layout);
 
-    //plot.write_html(flnm);
     plot.write_image(&plot_par.flnm, ImageFormat::PDF, 1280, 960, 1.0);
-    //plot.write_image(flnm, ImageFormat::PNG, 1280, 960, 1.0);
+    plot.write_image(&plot_par.flnm, ImageFormat::PNG, 1280, 960, 1.0);
 }
