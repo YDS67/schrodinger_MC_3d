@@ -2,8 +2,8 @@
 use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
-use std::io::BufRead;
 use std::io::BufReader;
+use std::io::BufRead;
 
 pub fn save_columns_to_file(vecs: &Vec<Vec<f64>>, dir_name: &str, file_name: &str) {
     let try_create_dir = std::fs::create_dir(dir_name);
@@ -31,9 +31,8 @@ pub fn save_columns_to_file(vecs: &Vec<Vec<f64>>, dir_name: &str, file_name: &st
     }
 }
 
-pub fn read_palette(dir_name: &str, fl_name: &str) -> Vec<Vec<u8>> {
-
-    let file_path: PathBuf = [dir_name, fl_name].iter().collect();
+pub fn read_columns_from_file(dir_name: &str, file_name: &str) -> Vec<Vec<f64>> {
+    let file_path: PathBuf = [dir_name, file_name].iter().collect();
     let file = File::open(file_path).expect("Error opening file");
     let reader = BufReader::new(file);
     let mut file_contents: Vec<String> = Vec::new();
@@ -42,18 +41,39 @@ pub fn read_palette(dir_name: &str, fl_name: &str) -> Vec<Vec<u8>> {
         file_contents.push(line.unwrap());
     }
 
-    let mut data_rows: Vec<Vec<u8>> = Vec::new();
+    let mut data_rows: Vec<Vec<f64>> = Vec::new();
+    let mut data_columns: Vec<Vec<f64>> = Vec::new();
+
+    let mut n_columns: Vec<usize> = Vec::new();
+    let mut n_rows: usize = 0;
 
     for line in file_contents {
-        let row: Vec<u8> = line
-            .split(|c| c == ' ' || c == '\t')
-            .map(|s| s.trim())
-            .filter(|s| !s.is_empty())
-            .map(|s| s.parse().unwrap())
-            .collect();
+        let row: Vec<f64> = line
+        .split(|c| c == ' ' || c == '\t'|| c == ',')
+        .map(|s| s.trim()) 
+        .filter(|s| !s.is_empty()) 
+        .map(|s| s.parse().unwrap()) 
+        .collect();
 
+        n_columns.push(row.len());
+        n_rows = n_rows+1;
+        
         data_rows.push(row)
+    };
+
+    let n1 = n_columns[1];
+
+    for _i in 0..n1 {
+        let column: Vec<f64> = Vec::new();
+        data_columns.push(column)
     }
 
-    data_rows
+    for j in 0..n_rows {
+        for i in 0..n_columns[j] {
+            data_columns[i].push(data_rows[j][i])
+        }
+    }
+
+    data_columns
+
 }

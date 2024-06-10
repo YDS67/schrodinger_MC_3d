@@ -4,6 +4,7 @@ use rand::distributions::{Distribution, Uniform};
 
 mod file;
 mod plot;
+mod palettes;
 mod draw;
 
 const H2M0: f64 = 0.0762;
@@ -30,7 +31,7 @@ const NZ: usize = (LZ/DX) as usize;
 const D: f64 = H2M0/ME/2.0;
 const DTAU: f64 = DX2/4.0/D; // units 1/eV
 const FINAL_TIME: f64 = 150.0; // units 1/eV
-const N_PARTICLES: usize = 50000000;
+const N_PARTICLES: usize = 50000;
 const N_PARTICLES_F: f64 = N_PARTICLES as f64;
 const N_TIME_STEPS: usize = (FINAL_TIME/DTAU) as usize;
 const N_VALUES_CHECK: usize = 100;
@@ -79,6 +80,8 @@ fn mean_last_half(v: &Vec<f64>) -> f64 {
 }
 
 fn main() {
+    let palettes = palettes::load_palettes();
+
     let radius = 2.0*A1*A2*((A1.ln()-A2.ln())/(A1*A1-A2*A2)).sqrt();
     println!("QR radius = {} nm", radius);
     let amplitude = quantum_ring_shape(radius+X1, Y1);
@@ -103,7 +106,7 @@ fn main() {
             zn2d[index_xy(jx,jy)] = quantum_ring_z(xn[jx], yn[jy], amplitude) - 2.0*QW_HEIGHT
         }
     }
-    draw::plot_2d(&zn2d, NX, NY, 2000, 2000, "QR_shape_xy.png", "Turbo");
+    draw::plot_2d(&zn2d, NX, NY, 2000, 2000, "QR_shape_xy.png", &palettes[2]);
 
     let mut un2d: Vec<f64> = vec![0.0; NX*NZ];
     for jx in 0..NX {
@@ -111,7 +114,7 @@ fn main() {
             un2d[index_xz(jx,jz)] = potential(xn[jx], Y1, LZ-zn[jz], amplitude)
         }
     }
-    draw::plot_2d(&un2d, NX, NZ, 2000, (2000*NZ)/NX, "Potential_shape_xz.png", "BnW");
+    draw::plot_2d(&un2d, NX, NZ, 2000, (2000*NZ)/NX, "Potential_shape_xz.png", &palettes[0]);
 
     let mut un3d: Vec<f64> = vec![0.0; NX*NY*NZ];
     for jx in 0..NX {
@@ -294,6 +297,6 @@ fn main() {
         &format!("schr_MC_1D_density-{}-{}-{}-{}.dat", N_PARTICLES, N_TIME_STEPS, N_VALUES_CHECK, NX),
     );
 
-    draw::plot_2d(&particle_distribution_xy, NX, NY, 2000, 2000, &format!("schr_MC_3D_density_xy-{}-{}-{}-{}.png", N_PARTICLES, N_TIME_STEPS, N_VALUES_CHECK, NX), "Turbo");
-    draw::plot_2d(&particle_distribution_xz, NX, NZ, 2000, (2000 * NZ) / NX, &format!("schr_MC_3D_density_xz-{}-{}-{}-{}.png", N_PARTICLES, N_TIME_STEPS, N_VALUES_CHECK, NX), "Turbo");
+    draw::plot_2d(&particle_distribution_xy, NX, NY, 2000, 2000, &format!("schr_MC_3D_density_xy-{}-{}-{}-{}.png", N_PARTICLES, N_TIME_STEPS, N_VALUES_CHECK, NX), &palettes[2]);
+    draw::plot_2d(&particle_distribution_xz, NX, NZ, 2000, (2000 * NZ) / NX, &format!("schr_MC_3D_density_xz-{}-{}-{}-{}.png", N_PARTICLES, N_TIME_STEPS, N_VALUES_CHECK, NX), &palettes[2]);
 }
