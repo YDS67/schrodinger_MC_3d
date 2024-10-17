@@ -1,0 +1,493 @@
+#LyX 2.4 created this file. For more info see https://www.lyx.org/
+\lyxformat 620
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass article
+\use_default_options true
+\maintain_unincluded_children no
+\language american
+\language_package default
+\inputencoding utf8
+\fontencoding auto
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_roman_osf false
+\font_sans_osf false
+\font_typewriter_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\use_microtype false
+\use_dash_ligatures true
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\float_placement class
+\float_alignment class
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry true
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\use_formatted_ref 0
+\use_minted 0
+\use_lineno 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\leftmargin 0.5cm
+\rightmargin 0.5cm
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\is_math_indent 0
+\math_numbering_side default
+\quotes_style english
+\dynamic_quotes 0
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tablestyle default
+\tracking_changes false
+\output_changes false
+\change_bars false
+\postpone_fragile_content true
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\docbook_table_output 0
+\docbook_mathml_prefix 1
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Диффузия
+\end_layout
+
+\begin_layout Section
+Вывод уравнения диффузии из случайного блуждания
+\end_layout
+
+\begin_layout Standard
+Делим пространство на отрезки:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+N\left(z,t\right)\to N_{k}\left(t\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Вводим модель случайного блуждания:
+ 
+\series bold
+каждый атом совершает скачок на расстояние 
+\begin_inset Formula $\Delta z$
+\end_inset
+
+ за время 
+\begin_inset Formula $\Delta t$
+\end_inset
+
+.
+
+\series default
+ (В реальности это расстояние и этот промежуток времени являются средними).
+\end_layout
+
+\begin_layout Standard
+Куда совершается этот скачок?
+ Он совершается в случайном направлении (вправо или влево по оси z).
+ Более конкретно,
+ 
+\series bold
+за каждый промежуток времени совершается скачок вправо с вероятностью 1/2,
+ либо скачок влево с вероятностью 1/2
+\series default
+.
+\end_layout
+
+\begin_layout Standard
+Давайте посмотрим,
+ что происходит с количеством частиц на каждом отрезке при изменении времени на 
+\series bold
+
+\begin_inset Formula $\Delta t$
+\end_inset
+
+.
+
+\series default
+ Рассмотрим,
+ что происходит на отрезке k.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+N_{k}\left(t+\Delta t\right)=\frac{1}{2}N_{k-1}\left(t\right)+\frac{1}{2}N_{k+1}\left(t\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+N_{k}\left(t+\Delta t\right)-N_{k}\left(t\right)=\frac{1}{2}N_{k-1}\left(t\right)-N_{k}\left(t\right)+\frac{1}{2}N_{k+1}\left(t\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\frac{N_{k}\left(t+\Delta t\right)-N_{k}\left(t\right)}{\Delta t}=\frac{1}{2\Delta t}\left[N_{k-1}\left(t\right)-2N_{k}\left(t\right)+N_{k+1}\left(t\right)\right]
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\frac{N_{k}\left(t+\Delta t\right)-N_{k}\left(t\right)}{\Delta t}=\frac{\left(\Delta z\right)^{2}}{2\Delta t}\left[\frac{N_{k-1}\left(t\right)-2N_{k}\left(t\right)+N_{k+1}\left(t\right)}{\left(\Delta z\right)^{2}}\right]
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\frac{N\left(z,t+\Delta t\right)-N\left(z,t\right)}{\Delta t}=\frac{\left(\Delta z\right)^{2}}{2\Delta t}\left[\frac{N\left(z-\Delta z,t\right)-2N\left(z,t\right)+N\left(z+\Delta z,t\right)}{\left(\Delta z\right)^{2}}\right]
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Мы должны перейти к пределу 
+\begin_inset Formula 
+\[
+\Delta z\to0,\quad\Delta t\to0
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Мы обязаны предположить,
+ что множитель перед скобкой при этом останется конечным числом.
+ Обозначим его буквой D.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\frac{\left(\Delta z\right)^{2}}{2\Delta t}=D
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\frac{\partial N}{\partial t}\left(z,t\right)=D\frac{\partial^{2}N}{\partial z^{2}}\left(z,t\right)
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Добавим испарение частиц
+\end_layout
+
+\begin_layout Standard
+Пусть у нас в каждой точке атом может испариться (то есть исчезнуть) с вероятностью 
+\begin_inset Formula $p_{k}\in\left[0,1\right]$
+\end_inset
+
+ за промежуток времени 
+\begin_inset Formula $\Delta t$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Давайте посмотрим,
+ что происходит с количеством частиц на каждом отрезке при изменении времени на 
+\series bold
+
+\begin_inset Formula $\Delta t$
+\end_inset
+
+.
+
+\series default
+ Рассмотрим,
+ что происходит на отрезке k.
+\end_layout
+
+\begin_layout Standard
+Для простоты предположим,
+ что сначала происходит испарение,
+ а потом происходит скачок атомов (случайное блуждание).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+N_{k}\left(t+\Delta t\right)=\frac{1}{2}\left(1-p_{k-1}\right)N_{k-1}\left(t\right)+\frac{1}{2}\left(1-p_{k+1}\right)N_{k+1}\left(t\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+N_{k}\left(t+\Delta t\right)-N_{k}\left(t\right)=\frac{1}{2}N_{k-1}\left(t\right)-N_{k}\left(t\right)+\frac{1}{2}N_{k+1}\left(t\right)-\frac{1}{2}\left[p_{k-1}N_{k-1}\left(t\right)+p_{k+1}N_{k+1}\left(t\right)\right]
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\frac{N_{k}\left(t+\Delta t\right)-N_{k}\left(t\right)}{\Delta t}=\frac{1}{2\Delta t}\left[N_{k-1}\left(t\right)-2N_{k}\left(t\right)+N_{k+1}\left(t\right)\right]-\frac{1}{2\Delta t}\left[p_{k-1}N_{k-1}\left(t\right)+p_{k+1}N_{k+1}\left(t\right)\right]
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\frac{N_{k}\left(t+\Delta t\right)-N_{k}\left(t\right)}{\Delta t}=\frac{\left(\Delta z\right)^{2}}{2\Delta t}\left[\frac{N_{k-1}\left(t\right)-2N_{k}\left(t\right)+N_{k+1}\left(t\right)}{\left(\Delta z\right)^{2}}\right]-\frac{1}{2}\left[\frac{p_{k-1}}{\Delta t}N_{k-1}\left(t\right)+\frac{p_{k+1}}{\Delta t}N_{k+1}\left(t\right)\right]
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\frac{N\left(z,t+\Delta t\right)-N\left(z,t\right)}{\Delta t}=\frac{\left(\Delta z\right)^{2}}{2\Delta t}\left[\frac{N\left(z-\Delta z,t\right)-2N\left(z,t\right)+N\left(z+\Delta z,t\right)}{\left(\Delta z\right)^{2}}\right]-\frac{1}{2}\left[\frac{p\left(z-\Delta z\right)}{\Delta t}N\left(z-\Delta z,t\right)+\frac{p\left(z+\Delta z\right)}{\Delta t}N\left(z+\Delta z,t\right)\right]
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Мы должны перейти к пределу 
+\begin_inset Formula 
+\[
+\Delta z\to0,\quad\Delta t\to0
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Мы обязаны предположить,
+ что множитель перед скобкой при этом останется конечным числом.
+ Обозначим его буквой D.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\frac{\left(\Delta z\right)^{2}}{2\Delta t}=D
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Мы также обязаны предположить,
+ что вероятность испарения,
+ делённая на 
+\begin_inset Formula $\Delta t$
+\end_inset
+
+,
+ будет конечной величиной.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\frac{p\left(z\right)}{\Delta t}=K\left(z\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Тогда получаем уравнение:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\frac{\partial N}{\partial t}\left(z,t\right)=D\frac{\partial^{2}N}{\partial z^{2}}\left(z,t\right)-K\left(z\right)N\left(z,t\right)
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+В 3D пространстве
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\frac{\partial N}{\partial t}\left(x,y,z,t\right)=D\left(\frac{\partial^{2}N}{\partial x^{2}}+\frac{\partial^{2}N}{\partial y^{2}}+\frac{\partial^{2}N}{\partial z^{2}}\right)-K\left(x,y,z\right)N
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\frac{\left(\Delta z\right)^{2}}{6\Delta t}=D
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\frac{p\left(x,y,z\right)}{\Delta t}=K\left(x,y,z\right)
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+В компьютерном моделировании методом случайного блуждания (методом Монте-Карло) нам понадобятся величины 
+\begin_inset Formula $\Delta z,\Delta t,p$
+\end_inset
+
+.
+ Если мы выбираем величину 
+\begin_inset Formula $\Delta z$
+\end_inset
+
+ свободно,
+ то остальные чётко вычисляются из предыдущих формул,
+ то есть:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\Delta t=\frac{\left(\Delta z\right)^{2}}{6D}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+p\left(x,y,z\right)=K\left(x,y,z\right)\Delta t
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Коэффициент D зависит от координаты
+\end_layout
+
+\end_body
+\end_document
